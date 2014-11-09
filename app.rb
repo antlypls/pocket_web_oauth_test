@@ -6,6 +6,8 @@ class App < Sinatra::Base
   enable :logging
   enable :sessions
 
+  set :views, File.expand_path('../views', __FILE__)
+
   CALLBACK_URL = "http://localhost:#{ENV['PORT']}/oauth/callback"
 
   Pocket.configure do |config|
@@ -22,12 +24,9 @@ class App < Sinatra::Base
     logger.info "session: #{session.inspect}"
 
     if session[:access_token]
-      '
-  <a href="/add?url=http://getpocket.com">Add Pocket Homepage</a>
-  <a href="/retrieve">Retrieve single item</a>
-      '
+      slim :index_authorized
     else
-      '<a href="/oauth/connect">Connect with Pocket</a>'
+      slim :index
     end
   end
 
@@ -56,13 +55,12 @@ class App < Sinatra::Base
   get '/add' do
     client = Pocket.client(access_token: session[:access_token])
     info = client.add url: 'http://getpocket.com'
-    "<pre>#{info}</pre>"
+    slim :info, locals: { info: info }
   end
 
   get '/retrieve' do
     client = Pocket.client(access_token: session[:access_token])
     info = client.retrieve(detailType: :complete, count: 1)
-
-    "<pre>#{info}</pre>"
+    slim :info, locals: { info: info }
   end
 end
