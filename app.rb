@@ -7,6 +7,7 @@ class App < Sinatra::Base
   enable :sessions
 
   set :views, File.expand_path('../views', __FILE__)
+  set :slim, layout: :layout
 
   CALLBACK_URL = "http://localhost:#{ENV['PORT']}/oauth/callback"
 
